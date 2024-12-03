@@ -2,43 +2,48 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO = 'https://github.com/njanfang/appnode.git'
-        NODE_HOME = '/usr/local/bin/node'  // Adjust based on your server's Node.js path
-        PM2_HOME = '/home/your-user/.pm2'  // Adjust based on your server's PM2 path
+        NODE_HOME = tool name: 'appnode', type: 'ToolInstallation'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git url: "${GIT_REPO}", branch: 'master'
+                git 'https://github.com/njanfang/appnode.git'
             }
         }
-
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                script {
+                    sh 'npm install'
+                }
             }
         }
-
-        stage('Deploy') {
+        stage('Test') {
             steps {
-                sh 'npm install pm2@latest -g'
-                sh 'pm2 stop ecosystem.config.js || true'
-                sh 'pm2 start ecosystem.config.js'
-                sh 'pm2 save'
+                script {
+                    sh 'npm test'  // if you have tests set up
+                }
             }
         }
-
-        stage('Restart Nginx') {
+        stage('Build') {
             steps {
-                sh 'sudo systemctl restart nginx'
+                script {
+                    sh 'npm run build'  // if you have a build step
+                }
+            }
+        }
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    sh 'pm2 restart ecosystem.config.js --env production'
+                }
             }
         }
     }
 
     post {
         always {
-            sh 'pm2 delete all'
+            echo 'Pipeline Finished!'
         }
     }
 }
