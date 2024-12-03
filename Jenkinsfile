@@ -1,74 +1,70 @@
 pipeline {
     agent any
-    
+
     environment {
-        NODE_HOME = tool name: 'nodejs', type: 'NodeJS' // Use the correct NodeJS version
+        GIT_REPO = 'https://github.com/njanfang/appnode.git'
+        NODE_HOME = '/usr/bin/node'  // Adjust based on your server's path
+        PM2_HOME = '/home/your-user/.pm2'  // Adjust based on your user's home directory
     }
-    
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/njanfang/appnode.git' // Replace with your GitHub repo URL
+                // Pull the latest code from GitHub
+                git url: "${GIT_REPO}", branch: 'main'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Install dependencies using npm
+                    // Install Node.js dependencies
                     sh 'npm install'
                 }
             }
         }
-        
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Run your tests (e.g., with Jest or Mocha)
-                    sh 'npm test'
-                }
-            }
-        }
-        
+
         stage('Build') {
             steps {
                 script {
-                    // Optionally, run any build step (e.g., bundling JS files)
-                    sh 'npm run build'
+                    // You can add build steps if needed (e.g., transpile, minify)
+                    // sh 'npm run build'
                 }
             }
         }
-        
-        stage('Deploy to Server') {
+
+        stage('Deploy') {
             steps {
                 script {
-                    // SSH into the server and deploy
-                    sh '''
-                    ssh root@139.162.143.148 "cd /var/appnode/appnode && git pull origin main && npm install && pm2 reload ecosystem.config.js"
-                    '''
+                    // Install PM2 if not installed
+                    sh 'npm install pm2@latest -g'
+
+                    // Stop the existing PM2 app (if running)
+                    sh 'pm2 stop ecosystem.config.js || true'
+
+                    // Start the app with PM2 using the ecosystem.config.js file
+                    sh 'pm2 start ecosystem.config.js'
+
+                    // Save the PM2 process list
+                    sh 'pm2 save'
                 }
             }
         }
-        
-        stage('Restart NGINX') {
+
+        stage('Restart Nginx') {
             steps {
                 script {
-                    // Restart NGINX to apply changes
-                    sh '''
-                    ssh root@139.162.143.148 "sudo systemctl restart nginx"
-                    '''
+                    // Restart Nginx to apply any changes (if necessary)
+                    sh 'sudo systemctl restart nginx'
                 }
             }
         }
     }
-    
+
     post {
-        success {
-            echo 'Pipeline succeeded'
-        }
-        
-        failure {
-            echo 'Pipeline failed'
+        always {
+            // Cleanup and exit gracefully
+            sh 'pm2 delete all'
         }
     }
 }
