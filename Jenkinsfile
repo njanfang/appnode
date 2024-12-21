@@ -3,11 +3,11 @@ pipeline {
 
     environment {
         APP_DIR = "/var/lib/jenkins/workspace/appnode"
-        NODE_VERSION = '20.18.0'
+        NODE_VERSION = '20.18.0'  // Ensure this matches the tool name in the NodeJS configuration
     }
 
     tools {
-        nodejs "$NODE_VERSION" // Use the NodeJS tool configured in Jenkins
+        nodejs "$NODE_VERSION"  // This will use the Node.js installation defined in Jenkins' global configuration
     }
 
     stages {
