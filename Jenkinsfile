@@ -6,17 +6,14 @@ pipeline {
         NODE_VERSION = '20.18.0'
     }
 
+    tools {
+        nodejs "$NODE_VERSION" // Use the NodeJS tool configured in Jenkins
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 git credentialsId: '48a94152-1ee4-4712-bca1-b91b69379d66', branch: 'master', url: 'https://github.com/njanfang/appnode.git'
-            }
-        }
-
-        stage('Install Node.js') {
-            steps {
-                sh 'nvm install $NODE_VERSION'
-                sh 'nvm use $NODE_VERSION'
             }
         }
 
