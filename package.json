@@ -2,16 +2,15 @@
   "name": "appnode",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js"
+   
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "webpack": "^5.x.x",
-    "webpack-cli": "^4.x.x"
+  "dependencies": {
+    "express": "^4.21.1"
   }
 }
