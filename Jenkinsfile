@@ -27,14 +27,8 @@ pipeline {
                 sh 'npm run build'
             }
         }
-       stage('Clean Install') {
-  steps {  
-      sh 'npm cache clean --force'
-      sh 'npm install'
-        }
-      } 
-
-        stage('Deploy') {
+        
+       stage('Deploy') {
             steps {
                 sh 'pm2 stop all'
                 sh 'pm2 start ecosystem.config.js'
