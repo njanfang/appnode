@@ -16,19 +16,12 @@ pipeline {
                 git credentialsId: '48a94152-1ee4-4712-bca1-b91b69379d66', branch: 'master', url: 'https://github.com/njanfang/appnode.git'
             }
         }
-  stage('Install Dependencies') {
-    steps {
-        script {
-            try {
+ 
+ stage('Install Dependencies') {
+            steps {
                 sh 'npm install'
-            } catch (Exception e) {
-                echo 'npm install failed'
-                throw e
             }
         }
-    }
-}
-
         stage('Build') {
             steps {
                 sh 'npm run build'
